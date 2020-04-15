@@ -1,3 +1,15 @@
+select 
+    [temp_table_excel_insert_for_join].person_id,
+    [temp_table_excel_insert_for_join].city,
+    city.city_id
+into 
+    mytable 
+from 
+    temp_table_excel_insert_for_join
+inner join 
+    city on temp_table_excel_insert_for_join.city = city.city
+
+
 student_id, project_id
 87,2
 98,8
