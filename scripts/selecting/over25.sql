@@ -8,7 +8,9 @@ SELECT
 FROM 
     students
 WHERE 
-    date_of_birth > DATEADD(yy,-25,GETDATE())
+    EXTRACT (YEAR FROM AGE(date_of_birth)) >= 25
+    
+    -- date_of_birth > DATEADD(yy,-25,GETDATE())
 
 
 

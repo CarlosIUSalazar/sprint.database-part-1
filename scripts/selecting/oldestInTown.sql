@@ -1,10 +1,12 @@
 -- Your SQL here
+
+-- select just the date_of_birth and town_of_origin of the oldest student in each town (use group by)
+
 SELECT 
-   first_name,
-   last_name,
-   date_of_birth,
-   gender,
-   town_of_origin
+   town_of_origin,
+   max(date_of_birth)
+
 FROM 
     students
-ORDER BY town_of_origin
+
+GROUP BY town_of_origin
