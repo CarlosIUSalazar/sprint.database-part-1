@@ -1,1 +1,2 @@
+-- Select the name of all projects worked on by students who checked in in June 2016. There should be no duplicates in the list
 -- Your SQL here
