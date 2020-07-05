@@ -1,74 +1,73 @@
-# データベース
-### This was created during my time as a [Code Chrysalis](https://codechrysalis.io) Student
+# Databases
 
-## 目次
+## Table of Contents
 
-1. [はじめに](＃introduction)
-1. [達成目標](＃objectives)
-1. [トピックの概要](＃overview-of-topics)
-1. [環境設定](＃environment)
-   1. [課題](＃requirements)
-1. [達成目標と指示](＃objectives-and-instructions)
-   1. [基本レベル](＃basic-requirements)
-   2. [応用レベル](＃advanced-requirements)
-1. [リソース](＃resources)
-1. [コントリビューション](＃contributing)
+1.  [Introduction](#introduction)
+1.  [Objectives](#objectives)
+1.  [Overview of Topics](#overview-of-topics)
+1.  [Environment](#environment)
+    1.  [Requirements](#requirements)
+1.  [Objectives & Instructions](#objectives-and-instructions)
+    1.  [Basic Requirements](#basic-requirements)
+    1.  [Advanced Requirements](#advanced-requirements)
+1.  [Resources](#resources)
+1.  [Contributing](#contributing)
 
-## はじめに
+## Introduction
 
-このスプリントは、ウォークスルー形式であるという点で今までと少し異なります。また、新たに、SQL と呼ばれる、今までと全く異なるプログラミング言語を使用します。後半では、基本的な SQL の概念を理解した後、非常にシンプルなチャットアプリのバックエンドを作成します。
+This sprint will be a little different in that it's a walkthrough, and you'll be using a new, completely different programming language called SQL for much of it. In the second half of it, once you've got a handle on basic SQL concepts, we'll create the backend for a very simple chat app
 
-## 達成目標
+## Objectives
 
-- SQL を使用したデータベースとのやり取りに慣れる
-- 基本的なデータベーススキーマの設計方法を理解する
-- Postgres で基本的な CRUD 操作を行えるようになる
-- リレーショナルデータベースと非リレーショナルデータベースの主な違いについて明確に定義できる
+* Become comfortable with using SQL to talk to the database
+* Know how to design a basic database schema
+* Be able to do basic CRUD operations in Postgres
+* Be able to clearly define the main differences between relational and non-relational databases
 
-## トピックの概要
+## Overview of Topics
 
-### データベースの概要
+### Overview of Databases
 
-これまでのところ、今まで作成したすべてのアプリはデータをメモリに保持し、アプリを閉じるとそれらの情報はすべて消去されます。恐ろしいハック以外の方法で情報を保存できるようにするには、データベースが必要です。今日は、データベースの構造化（’スキーマ設計’）と、とても強力で柔軟なリレーショナルデータベースである Postgres を使用した基本的な CRUD（作成、読み取り、更新、削除）操作について学習します。
+So far, all the apps you've written keep their data in memory, and all that information gets wiped away when the app is closed. If you want to be able to store information in something other than a horrible hack, you'll need a database. Today, we're going to learn about structuring a databases (called 'Schema Design'), and doing some basic CRUD (create, read, update, delete) operations using Postgres, an incredibly powerful and flexible Relational Database.
 
-大まかに言うと、リレーショナルデータベースと非リレーショナルデータベースの 2 種類のデータベースが存在します。ハイブリッドタイプのデータベースもありますが、それらについてここでは解説しません。このスプリントでは、リレーショナルデータベースを使った課題をメインで行いますが、両者のデータベースについて簡単に解説します。
+Broadly speaking, there are two kinds of databases—relational and non-relational. There are hybrids out there, but we won't spend any time on them. We're going work almost entirely on relational databases for this sprint, but lets spend a very short while talking about both of them.
 
-> ### 非リレーショナルデータベース
+> ### Non-relational Databases
 
-非リレーショナルデータベースは _ドキュメント_ を保存します。これらは、JSON のような（正直なところ、多くの種類が存在します）データの集合体であり、明確に定義されたスキーマ（データを一貫して構造化する方法）を持っている場合と持っていない場合があり、互いにリレーションを直接持ちません。通常、多くの制約なしにデータを高速に読み書きできます。以下に、いくつかの例とそのユースケースを示します：
+Non-relational databases store _documents_. These tend to be JSON-like (but honestly, there's a lot of variety here) buckets of data that may or may not have a well-defined schema (way of structuring data conistently) and don't directly relate to each other. Typically, they're good at writing and reading data fast without a bunch of constraints. Some examples and their use cases:
 
-- MongoDB、[Expedia](https://www.mongodb.com/customers/expedia)で、百万人規模のユーザーが作成した自由形式の旅行プランを保存するために使われています。
-- [ElasticSearch](https://www.elastic.co/use-cases) / [Lucene](https://lucene.apache.org/core/)、StackOverflow のような企業で、関連する質問や回答を見つけるために、ギガバイト規模のあいまい検索が必要な場合に使われています。また、アプリケーションログやそのインデックスを保存するために、多くのアプリで使用されています。これにより、あいまい検索を可能し、デバックの役に立っています。
-- [Redis](https://redis.io/topics/whos-using-redis)、超高速のメモリ内データベースで、アプリケーションがリレーショナルデータベースに常時アクセスしないようにするためのキャッシュとして主に使用されます。
+* MongoDB, used by [Expedia](https://www.mongodb.com/customers/expedia) to store free-form travel plans created by millions of users
+* [ElasticSearch](https://www.elastic.co/use-cases)/[Lucene](https://lucene.apache.org/core/), used by companies like StackOverflow that have to fuzzy search gigabytes of data to find relevant questions and answers. Also used by lots of apps to store application logs and index them so that they're fuzzy-searchable, and useful for debugging.
+* [Redis](https://redis.io/topics/whos-using-redis), an in-memory database that's lightning fast, mostly used as a cache to save your application from constantly hitting a relational database.
 
-非リレーショナルデータベースには非常に多くの種類が存在し、特定のユースケースに適している傾向があります。ここでは、それらについて詳しく言及することはありません。なぜなら、それぞれがかなりのボリュームがあり、多くの学習コストを割く必要があるためです。
+Non-relational databases vary quite a lot, and tend to be good for specialised use cases. We won't spend any more time discussing them because we consider each one to be considerable and need dedicated study.
 
-> ### リレーショナルデータベース
+> ### Relational Databases
 
-リレーショナルデータベースには、相互に関連付けることのできる _テーブル_ があります。これらは RDBMS（リレーショナルデータベース管理システム）とも呼ばれます。例として、MySQL、SQLite、Oracle、Postgres（私たちのお気に入りであり、今回使用するデータベース）などがあります。リレーショナルデータベースは、ビジネスロジックが依存する堅牢なデータセットを構築および維持するためのルールと制約を設定し、そのデータをクエリするのに最適です。任意のプラットフォームで使用するアプリの大部分には、何らかの種類のリレーショナルデータベースが背後にあると想定できます。
+Relational databases have _tables_ that can relate to each other. You'll see these sometimes referred to as RDBMSs (Relational Database Management Systems). Some examples are MySQL, SQLite, Oracle and Postgres (our favorite, and what you'll be using). Relational databases are excellent for setting up rules and constraints for building and maintaining a robust set of data that your business logic depends on, and then querying that data. We can assume that the majority of apps you use on any platform have a relational database of some kind behind them.
 
-リレーショナルデータベースは通常、_標準 SQL 規格_ と呼ばれる理想的な仕様に準拠するようにできています。SQL は _Structured Query language_ の略で、データを得る方法ではなく、どのようなデータがほしいかを記述する[宣言型プログラミング言語](https://ja.wikipedia.org/wiki/%E5%AE%A3%E8%A8%80%E5%9E%8B%E3%83%97%E3%83%AD%E3%82%B0%E3%83%A9%E3%83%9F%E3%83%B3%E3%82%B0)です。大体のケースでは、それぞれのリレーショナルデータベースが持つ変わった方言を除いて、SQL を知っていれば、どのリレーショナルデータベースも操作する方法は同じです。
+Relational databases generally try to adhere to an idealistic specification called the _SQL Standard_. SQL stands for _Structured Query language_ and is a [declarative language](https://en.wikipedia.org/wiki/Declarative_programming) that all self-respecting relational databases strive to speak. Broadly, except for the odd quirk here and there, if you know SQL, you know how to work with any relational database.
 
-さまざまなリレーショナルデータベースの違いを把握しておくことも有用です。[こちら](https://www.digitalocean.com/community/tutorials/sqlite-vs-mysql-vs-postgresql-a-comparison-of-relational-database-management-systems)の資料を読んでみましょう。今回は、課題で Postgres を使用します。
+It's useful to have a sense of what the differences are between the various relational databases out there. There's a writeup [here](https://www.digitalocean.com/community/tutorials/sqlite-vs-mysql-vs-postgresql-a-comparison-of-relational-database-management-systems) that you should read some other time. For now, we're going to work with Postgres.
 
-## 環境設定
+## Environment
 
-### 課題
+### Requirements
 
-このスプリントには、Postgres（>v10.0.0）、Node（>v10.0.0）、および NPM（任意のバージョン）がインストールされている必要があります。確認するには：
+You'll need to have Postgres (>v10.0.0), Node (>v10.0.0) and NPM (any version) installed for this sprint. To verify you have:
 
-- [ ] Postgres をインストールした後、コマンドラインから `psql` と入力します。インストールされている場合、psql が開き、バージョンが自動的に出力されます。
-  - `psql` が `psql: could not connect to server. Is the server running locally and accepting connections on Unix domain socket "/tmp/.s.PGSQL.5432"?` のようなエラーを返した場合、Postgres はインストールされていますが、動作していません。
-  - homebrew 経由でインストールした場合は、`brew services start postgresql` もしくは `postgres -D /usr/local/var/postgres` を実行してください。
-  - 以前に [PostgresApp](https://postgresapp.com/) をインストールした場合は、Mac の`アプリケーション`に移動して Postgres を開きます。
-  - Postgres を _両方_ の方法でインストールしようとしないでください。この場合、一方が他方と競合してしまい、頭を悩ますことになるかもしれません。
+* [ ] Postgres installed, type `psql` from the command line. If you have it installed, the version will print automatically when psql opens up.
+  * If `psql` returns an error that looks like `psql: could not connect to server. Is the server running locally and accepting connections on Unix domain socket "/tmp/.s.PGSQL.5432"?`, you have previously installed Postgres, but its not running.
+  * If you installed it with homebrew, run `brew services start postgresql` or `postgres -D /usr/local/var/postgres`
+  * If you previously installed the [PostgresApp](https://postgresapp.com/), go to `applications` on your mac and open up Postgres.
+  * Do not try to install Postgres _both_ ways. This will cause one to conflict with the other and may hurt your head very much.
 
-postgres がインストールされていない場合は、以下の手順を参照してください。インストール済みの場合でも、以下の Postgres セクションを一読してください。
+If you haven't got postgres installed, see the instructions below. It may be pertinent for you to read the Postgres section immediately below, even if you already have it installed.
 
 > ### Postgres
 
-- [ ] [postgresapp](https://postgresapp.com/) に移動して、あなたのパソコンに Postgres をインストールしてください。
-- [ ] ターミナルでコマンド `psql` を実行して、動作を確認してください。次のような内容がコマンドプロンプトに表示されるはずです。
+* [ ] Go to [PostgresApp](https://postgresapp.com/) and install Postgres on your machine.
+* [ ] Verify its working by running the command `psql` in your terminal. You should see a command prompt that looks something like this:
 
 ```
 psql (9.4.9)
@@ -77,59 +76,59 @@ Type "help" for help.
 your_username=#
 ```
 
-内容をかなり噛み砕いて説明すると、ここでは次の 3 つのことが行われています。
+To be obscenely simplistic, there are three things going on here.
 
-1. Postgres は、フォルダーをディスク上の任意の場所に作成し、すべての情報をそこに保存します。このフォルダー内に、Postgres はデフォルトのデータベースのためのサブフォルダー（ユーザー名にちなんで命名される）を作成します。
-2. バックグラウンドで実行しているデータベース _デーモン_ があります。これは、すでに作成した Web サーバーのように、コンピューターの特定のポートで接続をリッスンする永続的なプロセスです。Postgres はデフォルトで 5432 ポートを使用しますが、任意のポートを使用するように設定することもできます。
-3. 5432 ポートでこのデーモンに接続するコマンドラインアプリケーション（psql）を開きました。これは、データベースに対してコマンドを実行する 1 つの方法にすぎません。
+1.  Postgres has created a folder somewhere on your disk for it to use to store all its information. In this folder it created a subfolder for your default database (named after your username)
+2.  There is a database _daemon_ running in the background. This, rather like the web servers that you've already written, is a persistent process listening for connections on a particular port on your computer. Postgres uses port 5432 by default, but you can configure it to use any port.
+3.  You opened up a command-line application (psql) that connected to the daemon on port 5432. This is but one way to issue commands to a database.
 
-課題を始める前の簡単なメモ：このスプリント全体を通して、それぞれの内容について詳しく知りたくなるかもしれません。基本的な質問に対して、[Postgres ドキュメント](https://www.postgresql.jp/document/9.6/html/index.html)は、おそらく非常に冗長的であり、[postgrestutorial.com](http://www.postgresqltutorial.com/) または[StackOverflow](https://stackoverflow.com/) は、あなたにとって良き友となるでしょう。より高度な質問（型の詳細など）については、必ず Postgres のドキュメントを使用してください。
+A quick note before we get started: throughout this sprint you may get stuck on things. For basic questions, the [Postgres docs](https://www.postgresql.org/docs/9.6/static/index.html) will probably be far too verbose, and [postgrestutorial.com](http://www.postgresqltutorial.com/) or [StackOverflow](https://stackoverflow.com/) are your friends. For more advanced questions (specifics on types etc), definitely use the Postgres docs.
 
-## 達成目標と指示
+## Objectives and Instructions
 
-### 基本レベル
+### Basic Requirements
 
-#### テーブルの作成
+#### Creating Tables
 
-リレーショナルデータベースはすべてテーブルで構成されていると前述しました。まず、いくつかのテーブルを作成しましょう。データベース内のテーブルとそれに関連するルールの集まりのことを、 _スキーマ_ と呼びます。過去、現在、未来に在籍する Code Chrysalis の生徒のスキーマを作成することを想定しましょう。ここでは、各生徒の名前、生年月日、性別、出身地を保存したいと思っています。今のところ、これを 1 つのテーブルで管理することとします。
+We said earlier that relational databases are all about tables, so lets create some tables. A collection of tables and their associated rules in a database is called a _schema_. Let's pretend that we're creating a schema for the students at Code Chrysalis, past, present and future. For now, we want to store the name, date of birth, gender and town of origin for each student. For now, lets do this in one table.
 
-- [ ] `psql` を開き、Postgres のコマンドラインを入力してください。`\q` を使用して終了することを確認しましょう。
-- [ ] データベースを作成するための構文を調べ、`students` という名前のデータベースを作成し、`\c students` を使用して接続してみましょう。
-  - アドバイス：SQL では、すべてのステートメントは `;` で終わる必要があります。ステートメントが実行されていない場合、いずれかのセミコロンが欠落している可能性があります。
-- [ ] SQL でテーブルを作成するための構文を検索しましょう。
-- [ ] `id`、`first_name`、`last_name`、`date_of_birth`、`gender`、`town_of_origin` の列を持つ `students` という名前のテーブルを作成しましょう。`id` には `SERIAL` 型を使用する必要がありますが、その他のケースは postgres のドキュメントを参照し([簡略版](https://www.techonthenet.com/postgresql/datatypes.php) | [詳細版](https://www.postgresql.jp/document/9.6/html/datatype.html))、各列に適切なデータ型を選択しましょう。
-  - テーブルの各生徒に ID を割り当てます。これは、アプリの製作者である _私たち_ にとって、テーブル内のそれぞれの行を一意に識別できるものがあると便利だからです。そして、この ID を変更する理由は _決して_ ありません。
-  - この目的のために、テーブルを作成するたびに ID として自動インクリメント整数を使用することがよくあります。この仕組みは `SERIAL` 型が行っています。
-- [ ] テーブルを作成しましょう。
-  - 誤って作成した場合は、`drop table student;` を使用してテーブルを削除できます。
-  - postgres では、列名の大文字と小文字の区別は厄介な問題であることに注意してください。簡単のために、テーブル、列、データベース名には必ずスネークケースを使用するようにしてください。
-- [ ] いくつかの便利なメモ：
-  - `\dt` と入力して、データベース内のすべてのテーブルを表示します。
-  - `\d name_of_your_table` と入力して、特定のテーブルの説明を取得します。
-  - `\l` と入力して、接続できるすべてのデータベースを表示します。
+* [ ] Open up `psql` to enter Postgres's command line. You can quit using `\q`.
+* [ ] Look up the syntax for creating a database, create one called `students`, and connect to it by using `\c students`
+  * Pro tip: in SQL all statements must end in a `;`. If your statement is not running, you're most likely missing one of these.
+* [ ] Look up the syntax for creating a table in SQL.
+* [ ] You're going to create a table called `students` with columns `id`, `first_name`, `last_name`, `date_of_birth`, `gender` and `town_of_origin`. You should use the type `SERIAL` for `id` but for the others, look up the postgres docs ([simplified](https://www.techonthenet.com/postgresql/datatypes.php) | [advanced](https://www.postgresql.org/docs/9.5/static/datatype.html)) and choose an appropriate data type for each column.
+  * We want each student in our table to have an ID because it's often useful to have something that _we_, as the creators of apps can use to uniquely identify every single row in our table, and will _never_ have a reason to change.
+  * For this purpose, we often use an auto-incrementing integer as an ID whenever we create a table. This is what the type `SERIAL` does.
+* [ ] Create the table
+  * If you created it incorrectly, you can destroy the table using `drop table students;`
+  * Note that in postgres, the case-sensitivity of column names is a gnarly subject. To make your like easy, always use snake_case for your table, column and database names
+* Some useful notes, you can:
+  * see all tables in a database by entering `\dt`
+  * get a description of any given table by entering `\d name_of_your_table`
+  * see all databases you can connect to by entering `\l`
 
-#### データの挿入
+#### Inserting Data
 
-- [ ] あなたの名前、性別、および誕生日のデータを、構文を調べて students テーブルに挿入しましょう。自分で `id` を挿入しないでください。ID は自動で挿入されます。
-- [ ] `scripts/insertStudents.sql` ファイルの生徒のデータを見てみましょう。このファイルを修正して、各行を `insert` SQL ステートメントにしてください。次に、いくつかの `psql` のマジックを使用してファイル全体の SQL ステートメントを実行するので、それぞれを手動で挿入処理を実行する必要はありません。
-- [ ] `scripts/insertStudents.sql` を見て、各行を正しい `insert` ステートメントに修正し、作成したテーブルに生徒のデータを挿入しましょう。またこのとき、便利なショートカットキーを使用して時間を節約しましょう！次のステップでは、実際にこのファイルを `psql` で実行します。
-  - psql の CLI でたくさんの SQL を記述するのは苦痛です。一般に、実行したいコマンドをまとめた `.sql` ファイルを書いたほうがはるかに簡単です。たとえば、次に、 `psql -d students -f ./scripts/insertStudents.sql` を実行して、これらのコマンドを psql にパイプできます。`-d Students` は psql に `students` データベースに接続するように指示し、`-f ./scripts/insertStudents.sql` は直接入力した場合と同様に `scripts/insertStudents.sql` のコマンドを実行するように指示します。
-- [ ] ターミナルから、（`\q` を使用して）postgres CLI を終了し、`psql -d students -f scripts/insertStudents.sql` を実行して、実際にデータを挿入してみましょう。`INSERT 0 1` という行が約 100 回繰り返して表示されれば、正常に実行できています。 _それ以外_ が表示される場合はエラーが発生しています。何がうまくいかなかったかを理解し、修正しましょう。
-  - このステップを実行不可能にするなんらかのミスをテーブル作成時に犯した場合、`drop table students;` を使用して作成したテーブルを削除し、やり直してみましょう。
-  - ファイルを実行するには、postgres CLI を終了せずに、代わりに `\i` の後にファイルパスを指定する方法を使うこともできます。
+* [ ] Look up the syntax to insert data into a table and insert your own names, genders and date_of_births into your students table. Do not insert an `id` for yourself: that will happen automatically.
+* Look at the student data in in the file `scripts/insertStudents.sql`. We are going to change this file so that each line is an `insert` SQL statement. Then we're going to run the entire file using some `psql` magic so save you having to manually insert all of them.
+* [ ] In `scripts/insertStudents.sql`, change each line to be a valid `insert` statement that will insert the student data into the table you just created. Use your sublime shortcuts to save time! We'll actually run this file through `psql` in the next step.
+  * Writing lots of SQL in the psql CLI can be painful. It's generally much easier to write a `.sql` file containing the commands you want to run. You can then pipe these commands into psql by using, for example, `psql -d students -f ./scripts/insertStudents.sql`. `-d students` tells psql to connect to the `students` database, and `-f ./scripts/insertStudents.sql` tells it to run the commands in `scripts/insertStudents.sql` as though you typed them in.
+* [ ] From your terminal, exit the postgres CLI (using `\q`), then run `psql -d students -f scripts/insertStudents.sql` to actually insert the data. You'll know it worked if you see the lines `INSERT 0 1` repeated about 100 times. If you see _anything else_ that's an error. Try to understand what went wrong and fix it.
+  * If you made a mistake in your table creation rendering this step impossible, you can blow away the table you created using `drop table students;` and start again.
+  * To run a file, you can also not exit the postgres CLI and instead use `\i` followed by the file path.
 
-#### データの抽出
+#### Selecting Data
 
-以下の各ファイルで、これらのクエリの構文を調べ、`psql -d Students -f file_name` を使用して実行できるかどうかを確認しましょう。これらのクエリを `psql` 内で直接実行することもできます。これにより、プロトタイピングと内容の把握をはるかに高速に行うことができます。
+In each of the following files, look up the syntax for these queries and see if you can perform them using `psql -d students -f file_name`. You can also run these queries directly inside `psql`, which can be much faster for prototyping and figuring stuff out.
 
-- [ ] `scripts/selecting/allStudents.sql`：すべての生徒のデータを抽出しましょう。
-- [ ] `scripts/selecting/fromSf.sql`：`San Francisco` 出身の生徒の全データを抽出しましょう（`where` 句を調べてみましょう）。
-- [ ] `scripts/selecting/over25.sql`：25 歳以上の生徒の全データを抽出しましょう。
-  - [ ] このとき、今日の日付をハードコーディングせずにデータを抽出してください。
-- [ ] `scripts/selecting/studentsByAge`：年齢でソートし、すべての生徒の名前と苗字、生年月日のみを抽出しましょう。この時点で、生年月日の一部が間違っている可能性に気付くかもしれません。心配しないでください、これは後で修正します。
+* [ ] `scripts/selecting/allStudents.sql`: select all data about all students
+* [ ] `scripts/selecting/fromSf.sql`: select all data about all students who are from `San Francisco` (look up `where` clauses)
+* [ ] `scripts/selecting/over25.sql`: select all data about all students over 25 years old
+  * [ ] Now do this without hardcoding today's date
+* [ ] `scripts/selecting/studentsByAge`: select just the first_name, last_name and date_of_birth of all students in descending order of age. You may notice at this point that some of the dates of birth are very likely wrong. Don't worry, you'll fix this later.
 
-- SQL では、すべてのクエリはデータを含むテーブルを _必ず_ 返します。しかし、行をグループ化したい場合はどうなるでしょうか？
-- それぞれの町から最年長者の生年月日を検索する場合、それぞれの町に対応する行が 1 行だけになるように、students テーブルの行をグループ化する必要があります。このように、町ごとに行をグループ化すると、テーブルとして取得できません。代わりに、次の例のようにネストされたリストのようなデータとして取得できます。
+* In SQL, every query _must_ return a table of data. However, what happens when you want to group rows together?
+* Say you want to find the date_of_birth of the oldest person from each town, you'll have to group the rows of the students table together such that you only get a single row for each town. Well, when you group the rows by town, you don't have a table anymore, you have something that looks more like a nested list, e.g.:
 
 ```
 - Tokyo
@@ -146,202 +145,199 @@ your_username=#
   - Leela      | F      | 1979-03-26
 ```
 
-- しかし、すべてのクエリは _必ず_ テーブルを返さなければいけません。ネストされたリストをテーブルに変換するには、[集約関数](https://www.postgresql.jp/document/9.6/html/functions-aggregate.html)を使い、それぞれの列をグループごとに単一の値に集計する必要があります。つまり、出身地（町）の情報がそれぞれ 1 行のみ存在するようにします。このクエリの最後に集約関数を使用します。文字列を _集約すること_ は間違えやすいコンセプトであることに注意してください。これが、生年月日（date_of_birth）と出身地（town_of_origin）のみを必要とした理由です。
-- [ ] `scripts/selecting/oldestInTown`：それぞれの町で最も年長の生徒の生年月日と出身地のみを抽出してください（[group by](https://www.tutorialspoint.com/postgresql/postgresql_group_by.htm) を使用）
+* But every query _must_ return a table. To turn that nested list into a table, you'll have to [aggregate](https://www.postgresql.org/docs/9.5/static/functions-aggregate.html) each of the columns into a single value per group, so that there's only one row for each town. Use that for this final query. Note that _aggregating_ a string is a weird concept, which is why we've only asked for date_of_birth and town_of_origin.
+* [ ] `scripts/selecting/oldestInTown`: select just the date_of_birth and town_of_origin of the oldest student in each town (use [group by](https://www.tutorialspoint.com/postgresql/postgresql_group_by.htm))
 
-- 次の課題はオプションです（難しい）。もちろん、クエリで group-by から文字列の値を取得する必要がある場合があります。この問題を解決するために、Postgres には、2 つの便利な機能があります。[サブクエリ](http://www.postgresqltutorial.com/postgresql-subquery/)と[ウィンドウ関数](https://www.postgresql.jp/document/9.6/html/tutorial-window.html)です。
-- [ ] `scripts/selecting/oldestInTownByGender`（チャレンジモード）：それぞれの町の最年長の男子生徒と女子生徒の名、生年月日、出身地、及び性別を抽出します。
-  - [ヒント] この課題に取り組む方法の 1 つは、まず、すべての生徒のデータと、性別・町ごとの最年長者の生年月日を持つ追加の列を返すクエリを作成することです。これにはウィンドウ関数を使ってください。次に、作成したこのクエリをサブクエリとして扱います。
-- これらのクエリのいずれかが実行できない場合、使用したデータ型が間違っている可能性があります。答えに詰まってしまった場合は、インストラクターに声をかけて確認しましょう。
+* This next one is optional (read: difficult). Of course, sometimes you'll need to get string values out of a group-by in a query. There are two useful features in Postgres that'll help with this: [subqueries](http://www.postgresqltutorial.com/postgresql-subquery/) and [window functions](https://www.postgresql.org/docs/9.1/static/tutorial-window.html)
+* [ ] `scripts/selecting/oldestInTownByGender` (Challenge mode): select the first_name, date_of_birth, town_of_origin and gender of the oldest male and oldest female student in each town
+  * [Hints] One way to approach this is to first write a query that will return all data for all students AND an additional column that has the date_of_birth of the oldest person in each town of each gender. Use a window function for this. Then treat this query that you've just written as a subquery.
+* If any of these queries aren't possible, you may have made a bad choice in which data type you used. Check in with an instructor if you're stuck.
 
-#### データの更新
+#### Updating Data
 
-SQL では、行を更新するのではなく、テーブルを更新します。以下の課題では、1 つ以上の `where` 句を使用して、更新対象のテーブルのサブセットを抽出する必要があります。単一のクエリを使用して、以下を実行します。
+In SQL, you don't update rows, you update tables. In each of the following, you'll have to select the subset of the table you want to update using one or more `where` clauses. Use a single query to do the following.
 
-- [ ] `scripts/updating/correctCase.sql`：気づいたかもしれませんが、一部の生徒は `Tokyo` 出身、他の生徒は `tokyo` 出身となっています（T が大文字か小文字かの違い）。`tokyo` 出身となっているすべての生徒のデータを更新して、`Tokyo` 出身の生徒に変更しましょう。
-- [ ] `scripts/updating/correctdate_of_birth.sql`：データに別のエラーがあるようです。一部の生徒のデータには、実際の生年月日よりちょうど 100 年前の生年月日が記録されています。どの生徒が間違った生年月日を持っているか見つけて修正しましょう。このとき、実際に 100 歳以上の生徒はいないものと想定してください。
+* [ ] `scripts/updating/correctCase.sql`: You may have noticed, some students are from `Tokyo` and others are from `tokyo`. Update all the students from `tokyo` so that they're from `Tokyo`.
+* [ ] `scripts/updating/correctdate_of_birth.sql`:It looks like there's another error in our data: some students have a date_of_birth exactly 100 years before their real date_of_birth. Find out which students these are and fix them. You can assume that no students are actually > 100 years old.
 
-#### データの削除
+#### Deleting Data
 
-`Anakin Skywalker` という生徒がいることに気づいたかもしれません。残念ながら、暗黒卿は Code Chrysalis に参加しませんでした。
+You may or may not have noticed one student, `Anakin Skywalker`. Contrary to what you might think, the Dark Lord did _not_ attend Code Chrysalis.
 
-- [ ] `scripts/deleting/lastJedi.sql`：`students` テーブルから `Anakin Skywalker` を削除しましょう。
+* [ ] `scripts/deleting/lastJedi.sql`: Delete `Anakin Skywalker` from the `students` table.
 
-#### 制約
+#### Constraints
 
-- 上記の基本レベルの課題を完了することで、データベースからデータをクエリする方法のうち、約 80% を理解したことになります。これまでの内容は、音楽の演奏に置き換えると、C、F、G、F マイナーコードに相当する内容を、データベースについて学習してきたことになります。次に、テーブルをセットアップして整理する方法として、スキーマの設計を見ていきます。
-- [ ] [制約に関する postgres のドキュメント](https://www.postgresql.jp/document/9.6/html/ddl-constraints.html)の最初の 2 つの段落を読んでください。
-- 制約とは、不正なデータが挿入されないようにするために、データベース内のテーブルと列に設定する制限のことです。
-- 通常、制約はテーブルの作成時に追加されますが、テーブル内のデータが作成しようとしている制約を破っていない場合は、テーブル作成後でも追加できます。興味がある場合は、[テーブル定義の変更に関する簡単なチュートリアル](http://www.postgresqltutorial.com/postgresql-alter-table/)を参照してみましょう。ただし、焦って心配する必要はありません。このスプリントの後半でも取り上げます。
-- 一般的に、データベースに制約を定義して、決して変更してはならないルールを持たせておくことをお勧めします。たとえば、生年月日が未来日になっていないことを確認するなどの制約を定義するのが合理的です。
+* If you've completed the basic requirements above, you now know about 80% of what you're likely to come across while querying data in databases. If you play music, what you've just done now is learn the database equivalent of C, F, G and F-minor chords. We're now going to look at schema design, which is how to set up and organise your tables.
+* [ ] Read the first two paragraphs of [the Postgres docs on constraints](https://www.postgresql.org/docs/current/static/ddl-constraints.html).
+* Constraints are limits we place on tables and columns in your database to prevent bad data from being inserted.
+* Generally, constraints are added at the time a table is created, but we can also add them after that, provided the data in the table doesn't already break the constraint you're trying to create. If you're curious, look up this [brief tutorial on altering tables](http://www.postgresqltutorial.com/postgresql-alter-table/)--but don't worry if you're rushed, we'll get to this later in this sprint.
+* In general, its good practice to create constraints in your database to keep in place rules that must never be changed. For example, it may be reasonable to create constraints to, for example, make sure a date_of_birth isn't in the future.
 
-> ### 一意性制約
+> ### Unique Constraints
 
-- `students` テーブルを作成したときのことを思い出してみると、すべての生徒に一意の ID を持たせるために、自動インクリメントの `id` 列を追加しました。重複した `id` を作成しようとするとどうなるでしょうか？
-  - [ ] `students` テーブルに `id` が 1 である別の生徒を挿入してみましょう。生徒の残りの情報には適当な値を入れてください。
-  - 何が起こったのか注目してください。最悪です！ `id` が 1 の生徒はすでに存在しています！ID における重要なポイントは、値が必ず一意であるということです。
-    - `UNIQUE CONSTRAINT` というフレーズを含むエラーが返ってきた場合、あなたは確実に前進しています。`constraints` セクションの残りの部分を読むこともできますが、おそらくすでに理解した内容のはずです。
-- Postgres ドキュメントで[一意性制約](https://www.postgresql.jp/document/9.6/html/ddl-constraints.html)を検索しましょう。
-- [ ] students テーブルを削除（`drop table students`）し、今回は ID 列に一意性制約を定義して、students テーブルを再び作成しましょう。`scripts/insertStudents.sql` スクリプトを使用して、生徒のデータを再び挿入しましょう。
-- [ ] 先ほどと同様に、`scripts/insertStudents.sql` スクリプトを使用して、生徒のデータを再び挿入してみましょう。
-- [ ] 重複した ID を持つ生徒のデータをもう一度挿入してみましょう。その ID を持つ生徒が既に存在することを示すエラーが表示されることを確認してください。エラーが発生しない場合、一意性制約が正しく設定されていません。エラーが発生した場合は、おめでとうございます！最初の制約を作成することに成功しました！
+* If you think back to when you created our `students` table, we added an auto-incrementing `id` column to have a unique ID for every student. What happens if we try to create a duplicate `id` ?
+  * [ ] Try to insert another student into the `students` table with an `id` of 1. The rest of the information for the student can be anything you like.
+  * Notice that it totally let you do that. That's lame! There's already a student with an `id` of 1! The whole point of an ID is that it should _always_ be unique.
+    * If it threw an error at you that contained the phrase `UNIQUE CONSTRAINT`, you're ahead of the game. You can read through the rest of the `constraints` section but you probably already know this.
+* Look up [unique constraints](https://www.postgresql.org/docs/current/static/ddl-constraints.html) in the Postgres docs.
+* [ ] Destroy your students table (`drop table students`), and create it again, this time with a unique constraint on the ID column. Reinsert the student data into it using your `scripts/insertStudents.sql` script.
+* [ ] Re-insert the student data using `scripts/insertStudents.sql`, like you did earlier
+* [ ] Try to insert a student with a duplicate ID again. Verify that now, you get an error telling you that a student with that ID already exists. If you don't get an error, your constraint isn't set up correctly. If you did get an error, congrats! You've just created your first constraint!
 
-> ### 非 NULL 制約
+> ### Not-Null Constraints
 
-- [ ] `id` に明示的に `NULL` を設定した別の生徒のデータを `students`テーブルに挿入してみましょう。
-  - 再び、何が起こったのか注目してください。馬鹿げていますね！一部の生徒が ID を _持たない_ 場合があるとすると、ID は無意味なものになってしまいます。
-  - `NULL` 値は悪名高い落とし穴です。なぜなら、JavaScript とは異なり、`NULL` 値は SQL では計算できないため、一意性制約は `NULL` 値には適用されません。
-  - プロフェッショナルからのヒント：SQL では、`NULL` 自体を含め、`NULL` に等しいものはありません。
-    - クエリで `NULL` かどうか確認するには、`= NULL` または `!= NULL` を使用する代わりに、`IS NULL` または `IS NOT NULL` を使用します。
-  - これらの問題を回避するために、非 NULL 制約を使用して、任意の列に `NULL` 値を許容しないように指定できます。
-- [ ] Postgres ドキュメントで[非 NULL 制約](https://www.postgresql.jp/document/9.6/html/ddl-constraints.html)を検索しましょう。
-- [ ] students テーブルを削除し（`drop table students`）、今回は ID 列に一意性制約と非 NULL 制約を定義して、students テーブルを再び作成しましょう。`scripts/insertStudents.sql` スクリプトを使用して、生徒のデータを再び挿入しましょう。
-- [ ] 明示的に `NULL` の生徒 ID を持つ生徒をもう一度挿入してみましょう。エラーが発生することを確認してください。エラーが発生しなかった場合、非 NULL 制約が正しく設定されていません。
+* [ ] Try to insert yet another student into the `students` table with an `id` explicitly set to `NULL`.
+  * Notice that it let you do that too. That's nuts! What's the point of an ID if some students can just _not_ have one?
+  * `NULL` values are notorious pitfalls because unlike in javascript, `NULL` values cannot be computed against in SQL, so unique constraints do not apply to `NULL` values.
+  * Pro tip: In SQL, nothing is equal to `NULL`, including `NULL` itself.
+    * To check if something is `NULL` or not in your queries, instead of using `= NULL` or `!= NULL`, use `IS NULL` or `IS NOT NULL`.
+* To help you avoid these problems, you can specify that any column not allow `NULL` values by using a not-null constraint.
+* [ ] Look up [not-null constraints](https://www.postgresql.org/docs/current/static/ddl-constraints.html) in the Postgres docs.
+* [ ] Destroy your students table (`drop table students`), and create it again, this time with a unique constraint and a not-null constraint on the ID column. Reinsert the student data into it using your `scripts/insertStudents.sql` script.
+* [ ] Try to insert a student with an explicitly `NULL` student ID again. Verify that you get an error. If you don't, your constraint isn't set up correctly.
 
-> ### 主キー
+> ### Primary Keys
 
-- 非常に多くの場合、テーブルの特定の列（この場合、`students` テーブルの `id` 列）が、そのテーブルの行のプライマリ識別子になります。このような ID は決して null であってはならず、常に一意である必要があります。ほとんどのデータベースは、この目的のために `主キー` 制約を提供します。主キー制約は、実質、一意性制約と非 NULL 制約の組み合わせです。
-- [ ] Postgres で[主キー](https://www.postgresql.jp/document/9.6/html/ddl-constraints.html)のドキュメントを検索し、自分で確認してみましょう。
-- 今後は、おそらく `主キー` 制約を使用する必要が出てきますが、それが実際、何を意味するのか正確に理解しておくことが重要です =)
+* Very often, you'll have one particular column in a table (in this case, our `id` column in the `students` table) that is the primary identifier for rows in that table. Such an ID must never be null, and must always be unique. Most databases provide a `primary key` constraint for this purpose. A primary key constraint is just a unique constraint + a not-null constraint.
+* [ ] Look up the [primary key](https://www.postgresql.org/docs/current/static/ddl-constraints.html) documentation in Postgres and verify this for yourself.
+* Going forward, you should probably just use a `primary key` constraint, but its important for you to understand exactly what that is =)
 
-#### 結合
+#### Joins
 
-> ### 1 対多のリレーションシップ
+> ### One-to-many
 
-- 冒頭で、リレーショナルデータベースは、相互に関係を持ったデータテーブルの集まりであると述べました。さて、今のところテーブルは 1 つしかありませんが、心配しないでください。すぐに修正していきます！
-- [ ] `scripts/insertCheckins.sql` を見てください。
-  - ファイル内のステートメントはトランザクション内で書き込まれます（1 行目と 998 行目）。今のところ、トランザクションについて、トランザクション内でステートメントを実行した場合、すべてのステートメントが実行される、もしくはすべてが失敗するということを知っておきましょう。データの一部が挿入された後、処理が失敗し、その一部のデータが挿入されたままになることは _ありません_。
-- [ ] `psql -d students -f scripts/insertCheckins.sql` を使用して `scripts/insertCheckins.sql` を実行してみましょう。
-  - うまくいった場合は、次のステップに進みます。
-  - うまくいかなかった場合は、`Key (student_id)=(60) is not present in table "students"` のようなエラーメッセージをチェックしてください。スクリプトからエラーの ID を持つ生徒のチェックインのデータを削除してください。約 20 行以下にする必要があります。便利なショートカットキーを使用して時間を節約しましょう！
-  - スクリプトを再び実行してみましょう。スクリプトが機能するまで何度もスクリプトを実行しても特に害はありません。
-- [ ] Postgres ドキュメントで[外部キー](https://www.postgresql.jp/document/9.6/html/ddl-constraints.html)を検索して、`scripts/insertCheckins.sql` の 5 行目で何を行っているかを理解しましょう。
-  - 現在、students と checkins の 2 つのテーブルができているはずです。ここで、チェックインとは、生徒が Code Chrysalis の教室に出席した時間のことです。
-  - データベースに関していくつかの点に注意してください。
-    - それぞれの生徒は多数のチェックインを持つことができます
-    - ID を除いて、生徒のデータは 2 つのテーブル間で複製されることはありません。
-      - データベース内のすべてのエンティティには、_信頼できる唯一の情報源_ があります。students テーブルは生徒に関する唯一のデータソースであり、checkins テーブルはチェックインに関する唯一のデータソースです。
-    - すべてのチェックインに対して、外部キー制約により、その ID を持つ生徒が _常に_ 存在するという確固たる保証が与えられます。checkins テーブルで使用されている ID を持つ生徒を削除しようとすると、データベースはエラーを発生させ、処理を停止させます。
-    - これは参照整合性と呼ばれ、リレーショナルデータベースの重要な機能です。この機能のおかげで、リレーショナルデータベースは人気があり、その信頼性を高めています。
-- [内部結合](https://www.tutorialspoint.com/postgresql/postgresql_using_joins.htm)の構文を検索し、次のスクリプトを完成させましょう。
-  - [ ] `scripts/selecting/allStudentAndCheckin.sql`：単一のクエリで、すべての生徒のデータとそのチェックインのデータを抽出してください。
-  - [ ] `scripts/selecting/allCheckinInOn.sql`：2016 年 6 月にチェックインしたすべての生徒について、checkins テーブルから対象の生徒データと `checked_in_at` のみを抽出してください。
-    - [ ] チャレンジモード： `scripts/selecting/allCheckinInOn.sql` を拡張して、重複エントリを削除してください。結果として、2016 年 6 月にチェックインした各生徒は 1 回だけリストアップされ、`checked_in_at` は表示されないようにしてください。
-      - ヒント：`DISTINCT`を参照しましょう。
-  - このスプリントの後、空いている時間に[結合に関するチュートリアル](https://github.com/codechrysalis/sprint.database-part-1)（以下の`リソース`のセクションでも言及）の外部結合、左結合、および右結合について読むことをお勧めします。
+* At the very beginning we mentioned that relational databases are all about many tables of data that relate to each other. Well, we've only got one table for now, but fear not, we'll soon fix that!
+* [ ] Look at `scripts/insertCheckins.sql`.
+  * The statements inside the file are written inside a transaction (line 1 and line 998). For now, all you need to know about transactions is that when you run the statements inside them, either all of the statements will work, or the whole thing will fail. It will _not_ insert part of the data, fail, and leave that part inserted.
+* [ ] Try to run `scripts/insertCheckins.sql` using `psql -d students -f scripts/insertCheckins.sql`.
+  * If it did work, move on to the next step
+  * If it didn't work, inspect the error message for something like `Key (student_id)=(60) is not present in table "students"`. Delete the checkins for the students whose IDs it complains about from the script. This should be about 20 rows or fewer. Use your sublime shortcuts to save time!
+  * Run the script again so it works. Remember, there's no harm in running the script many times until it works.
+* [ ] Look up [Foreign Keys](https://www.postgresql.org/docs/current/static/ddl-constraints.html) in the Postgres docs to understand what line 5 of `scripts/insertCheckins.sql` is doing
+* You should now have two tables, one with students, and one with checkins. A checkin is just a single time that a student walked into the Code Chrysalis classroom.
+* Notice a few things about our database:
+  * Each student could have many checkins
+  * Except for his or her ID, no student data is duplicated across the two tables
+    * There is a _single source of truth_ for every entity in our database. The students table is the only source of data on students, and the checkins table is the only source of data on checkins.
+  * For every checkin, the foreign-key constraint gives us a rock-solid guarantee that there will _always_ be a student with that ID. If you try and delete a student with an ID that is used in the checkins table, the database will throw an error and stop you.
+  * This is called Referential Integrity, and is the kickass feature of relational databases that makes them popular and reliable.
+* Look up the syntax for an [inner join](https://www.tutorialspoint.com/postgresql/postgresql_using_joins.htm), and complete the following scripts:
+  * [ ] `scripts/selecting/allStudentAndCheckin.sql`: select all the student data and checkin data for all students in a single query.
+  * [ ] `scripts/selecting/allCheckinInOn.sql`: select all student data and only `checked_in_at` from the checkins table about all students who checked in in June 2016.
+    * [ ] Challenge mode: Extend `scripts/selecting/allCheckinInOn.sql` to remove duplicate entries, so each student who checkin in in June 2016 is listed only once in your result, and `checked_in_at` is not shown at all.
+      * Hint: look for `DISTINCT`
+  * I recommend you read about outer, left and right joins in [this tutorial on joins](https://www.tutorialspoint.com/postgresql/postgresql_using_joins.htm) (also mentioned in the `resources` section below) after this sprint, in your own time.
 
-> ### 多対多のリレーションシップ
+> ### Many-to-many
 
-- students と checkins テーブルの間に見られる関係は、1 対多のリレーションシップと呼ばれます。これは、各生徒（1 人）に対して多数のチェックインがあるためです。
-- 可能なリレーションシップには、次の 3 種類があります。
-  - 1 対 1
-  - 1 対多
-  - 多対多
-- より詳細な説明については、この[リレーションシップに関するチュートリアル](https://support.airtable.com/hc/en-us/articles/218734758-A-beginner-s-guide-to-many-to-many-relationships)（おすすめの参考資料も含む）
-- 多対多のリレーションシップを作成してみましょう。
+* The relationship we've just been looking at between students and checkins at is called a one-to-many relationship, because for each (one) student there are many checkins.
+* There are really three kind of possible relationships:
+  * one-to-one
+  * one-to-many
+  * many-to-many
+* For a more thorough explanation, see this [generally applicable tutorial](https://support.airtable.com/hc/en-us/articles/218734758-A-beginner-s-guide-to-many-to-many-relationships) (also in the recommended reading)
+* Let's look at creating a many-to-many relationship
 
-  - [ ] `scripts/insertProjects.sql`を見て、何を行っているか理解しましょう。
-  - [ ] `psql -d students -f scripts/insertProjects.sql` を使用して、いくつかのシードデータで `projects` テーブルを作成しましょう。
-  - 各プロジェクトに、多くの生徒が参加しています。生徒は多くのプロジェクトに取り組んできたかもしれません。これが、多対多のリレーションシップです。
-  - SQL でこれらを表す最も一般的な方法は、個別の _結合テーブル_ を持つことです。
-    - `scripts/studentsToProjects.sql` には、`student_id` と `project_id` のリストが含まれています。それぞれの行は、特定のプロジェクトに取り組んでいる一人の生徒を表しています。
-  - [ ] `scripts/studentsToProjects.sql` スクリプトで、SQL を追加して `students_to_projects` という名前の結合テーブルを作成しましょう。テーブルには次のものが必要です。
-    - [ ] `students` テーブルに関連付けられた、外部キー制約を持つ `student_id` 列。
-    - [ ] `projects` テーブルに関連付けられた、外部キー制約を持つ `project_id` 列。
-    - [ ] 上の 2 つの列の組み合わせに対する一意性制約。これにより、生徒を 1 つのプロジェクトに複数回結び付けることができなくなります。
-  - [ ] `scripts/studentsToProjects.sql` を編集し、対象のデータを使用して `students_to_projects` テーブルにデータを挿入します。
-  - 問題が発生し、`Key (student_id)=(60) is not present in table "students"` といったエラーが表示された場合、単純に、エラーとなっている行を `scripts/studentsToProjects.sql` ファイルから削除してください。
+  * [ ] Have a look at `scripts/insertProjects.sql` and make sure you understand it
+  * [ ] create a `projects` table with some seed data using `psql -d students -f scripts/insertProjects.sql`
+  * Each project has been worked on by many students. Students may have worked on many projects. This is a many-to-many relationship.
+  * The most common way to represent these in SQL is to have a separate _join table_
+    * `scripts/studentsToProjects.sql` contains a list of `student_id`s and `project_id`s. Each row represents a single student working on a specific project.
+  * [ ] In the `scripts/studentsToProjects.sql` script, add some SQL to create a join table named `students_to_projects`. The table should have:
+    * [ ] `student_id` column with a foreign key constraint tied to the `students` table
+    * [ ] `project_id` column with a foreign key constraint tied to the `projects` table
+    * [ ] unique constraint on the combination of the two columns above, such that a student cannot be tied to a project more than once.
+  * [ ] Edit the `scripts/studentsToProjects.sql` so that it populates the `students_to_projects` table using the given data.
+  * If you run into trouble and see an error in the form `Key (student_id)=(60) is not present in table "students"`, simply delete that row from the `scripts/studentsToProjects.sql` file
+  * Good work! You've just created your first join table!
 
-- よくできました！最初の結合テーブルを作成しました！
+* Let's write some queries with this new data!
+  * [ ] `scripts/selecting/studentsOnProjectX.sql`: Select the `first_name` and `last_name` of all students who worked on the project with an `id` of 5.
+  * [ ] `scripts/selecting/juneProjects.sql`: Select the `name` of all projects worked on by students who checked in in June 2016. There should be no duplicates in the list
+  * [ ] `scripts/selecting/slackers.sql` (Challenge mode): Select the `first_name` and `last_name` of all students who did not work on any projects at all.
+    * Hint: You will have to use a [subquery](https://stackoverflow.com/questions/19363481/select-rows-which-are-not-present-in-other-table).
 
-- この新しいデータでいくつかのクエリを書いていきましょう！
-  - [ ] `scripts/selecting/studentsOnProjectX.sql`：`id` が 5 であるプロジェクトに取り組んだすべての生徒の `first_name` と `last_name` を抽出しましょう。
-  - [ ] `scripts/selecting/studentsOnProjectX.sql`：2016 年 6 月にチェックインした生徒が取り組んだ、すべてのプロジェクトの `name` を抽出しましょう。リストには重複がないはずです。
-  - [ ] `scripts/selecting/studentsOnProjectX.sql`（チャレンジモード）：プロジェクトにまったく取り組んでいないすべての生徒の `first_name` と `last_name` を抽出しましょう。
-    - ヒント：[サブクエリ](https://stackoverflow.com/questions/19363481/select-rows-which-are-not-present-in-other-table)を使用する必要があります。
+#### Schema Design
 
-#### スキーマ設計
-
-- ペアで、次のシナリオのデータベーススキーマについて話し合い、お互いの意見を議論し合いましょう。以下のシナリオは、あなたのペアとの議論に火をつけるために意図的に曖昧にしてあります。
-- それぞれのシナリオについて、[http：//dbdesigner.net/](http://dbdesigner.net/) のような視覚的なツールを使用してスキーマを設計してみましょう。例として、小さなプロジェクトのスキーマを以下に示します。
+* Discuss and come up with a database schema for the following scenarios with your pair. These are deliberately vague to spark debate with your pair.
+* For each one, design a schema with a visual tool like http://dbdesigner.net/. As an example, the schema for this little project is visible below:
   ![CodeChrysalis-Database-1-schema](/assets/cc-db-1-schema.png?raw=true "CodeChrysalis Database Sprint I")
-- [ ] 図書館（library）
-  - 図書館（library）には、たくさんの本（book）があります
-  - 図書館（library）には、多くのメンバー（member）がいます。
-  - メンバー（member）は、本（book）をいくつでも借りることができます。
-  - 図書館（library）は、すべての借入の履歴記録を保存する必要があります。
-- [ ] Slack
-  - Slack には、チャットをする多くのユーザー（user）がいます
-  - Slack には、多くのチャンネル（channel）があります。
-  - チャンネル（channel）には、多くのユーザー（user）が所属することができます。
-  - ユーザー（user）は、独自のプライベートチャンネルを作成して、お互いに直接メッセージをやり取りすることもできます。
-- [ ] チャレンジモード：ChrysalisBook - Code Chrysalis の生徒のためのソーシャルネットワーク
-  - 多くの生徒が在籍しています。
-  - すべての生徒が、友達リクエストを他の生徒に送信できます。
-  - 友達リクエストを受け取った生徒は、それを受け入れる、拒否する、またはブロックすることができます。
-  - ブロックされた生徒は、友達リクエストを送信できなくなりますが、ブロックされていることは相手に知らせないでください。
+* [ ] A library.
+  * The library has many books
+  * The library has many members
+  * members can borrow any number of books
+  * The library must keep a historical record of all borrowings
+* [ ] Slack
+  * Slack has many users who chat
+  * Slack also has many channels
+  * A channel can have many users
+  * Users can also form their own private channels, to direct-message each other
+* [ ] Challenge mode: ChrysalisBook - A social network for Code Chrysalis students
+  * There are many students
+  * Any student can send a friend request to any other student
+  * The student who receives the friend request can accept it, reject it or block it
+  * Blocked students cannot send friend requests any more, but should not know they are blocked
 
-### 応用レベル
+### Advanced Requirements
 
-#### インデックス
+#### Indexes
 
-- インデックスは、リレーショナルデータベースのコア機能です。データベースが一致する結果を見つけるのにかかる時間を劇的にスピードアップし、テーブルが大きくなるとより重要になります。
-- 最も一般的なインデックス（多くの場合、デフォルト）は、[B+ 木](https://ja.wikipedia.org/wiki/B%2B%E6%9C%A8)です。これは、すでに馴染みのあるバイナリツリーのバリエーションの 1 つです。簡単に言えば、葉ノードが連結リストで接続されているツリーです。これについての詳細は、[データベースの実際の動作に関する概要](http://coding-geek.com/how-databases-work/)の `ハードコアな読み物` のセクションを参照してください。
-- インデックスを追加するコストは、新しいデータの挿入が遅くなることです。そのため、すべての列にインデックスを追加することは、絶対に良い考えというわけでは必ずしもありません。
-- 経験則として、比較的頻繁にフィルタリングまたは結合する予定のある列にのみ、インデックスを追加する必要があります。
-- 列に一意性制約を追加すると、通常、その列にもインデックスが追加され、データを挿入するごとに、データベースが一意性を確認できるようになります。
-- インデックスの追加は、列の入力可能な値（ブール値など）のバリエーションが非常に少ない場合に限定的に使用されます。
-- [ ] students テーブルと checkins テーブルのどの列にインデックスを設定すべきかペアと話し合いましょう。
-- [ ] [postgres ドキュメント](https://www.postgresql.jp/document/9.6/html/sql-createindex.html)でインデックスを追加するための構文を検索（`例` のセクションを検索）し、必要だと思う列にインデックスを追加しましょう。
-  - 少なくとも、各テーブルの ID 列にインデックスを追加する必要があります。
-  - Google と Stackoverflow を自由に使用しましょう。データベースに '正しく' インデックスを設定することは大きなトピックです！
-  - 対象のテーブルに存在するインデックスは、`\d table_name;` を使用して psql で見つけることができます。
+* Indexes are a core component of relational databases. They dramatically speed up the time it takes for the database to find matching results and become more invaluable as tables get larger.
+* The most common index (and in many cases, the default) is a [B+ tree](https://en.wikipedia.org/wiki/B%2B_tree), which is a variation of the binary trees that you're already familiar with. This is, in a nutshell, a tree in which the leaf nodes are connected by a linked list. You can read more about this in the [overview of how databases actually work](http://coding-geek.com/how-databases-work/), in the `hardcore reading` section.
+* The cost to adding an index is that inserting new data becomes slower, so its definitely not a good idea to add an index on all your columns.
+* As a rule of thumb, you should add indexes only to columns that you plan on filtering on or joining on relatively frequently.
+* Adding a unique constraint to a column will usually add an index to that column too, to make it faster for the database to verify uniqueness on every insertion.
+* Adding indexes is of limited use when there is very little variation in the possible values of a column (e.g., boolean values).
+* [ ] Discuss with your pair which columns in the students table and the checkins table would deserve indexes.
+* [ ] Look up the syntax for adding indexes in the [Postgres docs](https://www.postgresql.org/docs/9.5/static/sql-createindex.html) (search for the 'examples' section) and add indexes to the columns you think need them.
+  * At a minimum, you should add indexes to the ID columns on each table.
+  * Use Google and Stackoverflow liberally. Indexing databases 'correctly' is a huge topic!
+* The indexes that exist on a given table can be found in psql using `\d table_name`;
 
-#### トランザクション
+#### Transactions
 
-- トランザクションはデータベースに必須の機能です。あなたはすでに `scripts/insertProjects.sql` でそれを使っています。
-- トランザクションは、いくつかの SQL クエリをまとめて、バッチ処理できるようにする方法です。
-- これが必要な場合の典型的な例は、銀行振込の処理です。銀行が 1 つの口座から別の口座に送金しなければならない場合、通常 2 つのクエリを書く必要があります。1 つの口座から送金する金額を差し引くクエリと、別の口座にその金額を加算するクエリです。
-  - 1 つのクエリが完了し、もう 1 つのクエリが完了していないときに、エラーまたは停電が発生した場合、結果は悲劇的です。銀行が業務を適切に遂行しようとするなら、お金を消失させることは _できません_。
-  - トランザクション内にクエリをラップすると、データベースはすべてのクエリが副作用 _ゼロ_ で失敗する、もしくはすべて成功することが担保されます。
-- 相互に依存する複数のクエリを記述するときは、常に、トランザクション内で実行することをお勧めします。
-- [ ] トランザクションについて、[この短いチュートリアル](https://www.tutorialspoint.com/postgresql/postgresql_transactions.htm)を完了させましょう。
+* Transactions are integral to databases. You've already come across them in `scripts/insertProjects.sql`.
+* A transaction is a way of wrapping up several SQL queries such that we can batch their success together.
+* The classic example of when this is needed is performing bank transfers. When banks have to transfer money from one account to another, they must usually write two queries, one query to subtract the amount from one account, and another to add the amount to the account.
+  * If an error, or a power outage occurred when one query was complete and the other was not, the results are catastrophic. Money simply _cannot_ disappear like that if the bank is to stay in business.
+  * Wrapping queries inside a transaction causes the database to perform the queries within an iron-clad guarantee that either all of them will fail with _zero_ side effects, or all of them will succeed.
+* It's generally good practice whenever writing multiple queries that depend on each other, to do them in a transaction.
+* [ ] Complete [this short tutorial](https://www.tutorialspoint.com/postgresql/postgresql_transactions.htm) on transactions
 
-#### マイグレーション
+#### Migrations
 
-- テーブルのスキーマを変更するたびに、マイグレーション内でその変更を行います。マイグレーションとは、何らかの方法でスキーマを変更し、新しいスキーマに適合するようにデータを変更する一連のクエリです。マイグレーションはトランザクション内で _常に_ 実行されるべきです。
-- `students` テーブルで、各生徒の出身地の名前が、数回繰り返し出現していることに気づいたかもしれません。非常に丁寧に修正したにもかかわらず、いくつかのミスが発生していますね。より恒久的な解決策は、出身地（町）のデータを独自のテーブルに移動し、それぞれの生徒のデータに `towns` テーブルから出身地（町）の ID を参照させることです。
+* Whenever we change the schema of a table, we do so within a migration. A migration is a set of queries that change the schema in some way, and alter the data to fit within the new schema. Migrations should _always_ happen within a transaction.
+* You may have noticed that in the `students` table, we repeat the names of each student's town of origin several times. This has already caused a few mistakes in the data that you very kindly fixed. A more permanent solution, however, would be to migrate the towns to their own table, and have each student reference the id of the town they originate from in the `towns` table.
+  * Create your own `.sql` file and do the following within a transaction:
+    * [ ] Create a new table for towns, with just an `id` column and a `name` column
+    * [ ] Insert all the towns mentioned in the `students` table to the `towns` table.
+    * [ ] Add a column named `town_id` to the students table
+    * [ ] For each student, add his or her `town_id` to the `students` table
+    * [ ] Drop the `town_of_origin` column from the students table
+  * Did it? Congrats! You just created your first migration!
+* Remember that quotes API? Make a database + migrations for it. Should be easy peasy after this!
 
-  - `.sql` ファイルを作成し、トランザクション内で次の内容を実行しましょう。
-    - [ ] `id` 列と `name` 列だけで、出身地（町）の新しいテーブルを作成してください。
-    - [ ] `students` テーブルに記載されているすべての出身地（町）を `towns` テーブルに挿入してください。
-    - [ ] `town_id` という名前の列を `students` テーブルに追加してください
-    - [ ] 生徒ごとに `town_id` を `students` テーブルに追加してください
-    - [ ] `students` テーブルから `town_of_origin` 列を削除してください
-  - できましたか？おめでとうございます！初めてのマイグレーションを作成しました！
+## Resources
 
-- 名言・格言 API を覚えていますか？データベースとそのマイグレーションを行ってみましょう。この後の作業は簡単なはずです！
+### Essentials for reference
 
-## リソース
+* [Postgres documentation](https://www.postgresql.org/docs/9.6/static/index.html)
+* [Simplified postgres tutorials](http://www.postgresqltutorial.com/)
 
-### 必修の資料一覧
+### Extra (recommended) reading and watching
 
-- [Postgres ドキュメント](https://www.postgresql.jp/document/9.6/html/index.html)
-- [簡略版 postgres チュートリアル](http://www.postgresqltutorial.com/)
+* [Comparison of relational databases](https://www.digitalocean.com/community/tutorials/sqlite-vs-mysql-vs-postgresql-a-comparison-of-relational-database-management-systems)
+* [How auto-incrementing integers can fail](https://www.youtube.com/watch?v=vA0Rl6Ne5C8&t=158s) (AKA, 'how Gangnam Style "broke the internet"')
+* [Postgres overview of constraints](https://www.postgresql.org/docs/current/static/ddl-constraints.html)
+* [Tutorial on joins](https://www.tutorialspoint.com/postgresql/postgresql_using_joins.htm)
+* [Generally-applicable tutorial on relationships](https://support.airtable.com/hc/en-us/articles/218734758-A-beginner-s-guide-to-many-to-many-relationships)
 
-### 追加（推奨）の読み物と動画
+### Hardcore reading
 
-- [リレーショナルデータベースの比較](https://www.digitalocean.com/community/tutorials/sqlite-vs-mysql-vs-postgresql-a-comparison-of-relational-database-management-systems)
-- [整数の自動インクリメントが失敗する理由](https://www.youtube.com/watch?v=vA0Rl6Ne5C8&t=158s) (別名、'江南スタイルが"インターネットを破壊"した方法')
-- [Postgres 制約の概要](https://www.postgresql.org/docs/current/static/ddl-constraints.html)
-- [結合のチュートリアル](https://www.tutorialspoint.com/postgresql/postgresql_using_joins.htm)
-- [リレーションシップの一般的チュートリアル](https://support.airtable.com/hc/en-us/articles/218734758-A-beginner-s-guide-to-many-to-many-relationships)
+* [Overview of how databases actually work](http://coding-geek.com/how-databases-work/)
+* [UCBerkeley CS186 Introduction to Database Systems lecture](https://www.youtube.com/watch?v=G58q_y0vRpo&list=PL-XXv-cvA_iBVK2QzAV-R7NMA1ZkaiR2y)
 
-### ハードコアな読み物
+## Contributing
 
-- [データベースの動作原理に関する概要](http://coding-geek.com/how-databases-work/)
-- [UCBerkeley CS186 データベースシステム入門講義](https://www.youtube.com/watch?v=G58q_y0vRpo&list=PL-XXv-cvA_iBVK2QzAV-R7NMA1ZkaiR2y)
-
-## コントリビューション
-
-なにか問題のある箇所を見つけましたか？ 改善すべき箇所がありましたか？[私たちのカリキュラムに貢献しよう](mailto:hello@codechrysalis.io)!
+See a problem? Can something be done better? [Contribute to our curriculum](mailto:hello@codechrysalis.io)!
